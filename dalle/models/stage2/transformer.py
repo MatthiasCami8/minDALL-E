@@ -25,8 +25,8 @@ class Transformer1d(nn.Module):
         assert hparams.n_layers == hparams.n_dense_layers
 
         # Quant stubs
-        self.quant = torch.quantization.QuantStub()
-        self.dequant = torch.quantization.DeQuantStub()
+        #self.quant = torch.quantization.QuantStub()
+        #self.dequant = torch.quantization.DeQuantStub()
 
         # input embedding for image and text
         self.tok_emb_img = nn.Embedding(vocab_size_img, hparams.embed_dim)
@@ -87,11 +87,9 @@ class Transformer1d(nn.Module):
 
         x = torch.cat([texts, images], axis=1).contiguous()
 
-        x = self.quant(x)
         x = self.drop(x)
         x = self.blocks(x)
         x = self.ln_f(x)
-        x = self.dequant(x)
 
         texts = x[:, :N-1].contiguous()
         images = x[:, N-1:-1].contiguous()

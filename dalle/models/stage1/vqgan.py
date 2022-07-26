@@ -57,10 +57,14 @@ class VQGAN(nn.Module):
         self.quant_conv = torch.nn.Conv2d(hparams.z_channels, embed_dim, 1)
         self.post_quant_conv = torch.nn.Conv2d(embed_dim, hparams.z_channels, 1)
         self.latent_dim = hparams.attn_resolutions[0]
+        self.quant = torch.quantization.QuantStub()
+        self.dequant = torch.quantization.DeQuantStub()
 
     def forward(self, x: torch.FloatTensor) -> torch.FloatTensor:
+        x = self.quant(x)
         quant = self.encode(x)
         dec = self.decode(quant)
+        dec = self.dequant(dec)
         return dec
 
     def encode(self, x: torch.FloatTensor) -> torch.FloatTensor:
